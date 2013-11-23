@@ -1,7 +1,7 @@
 # Crawl The contents of Google Scholar
 # Author : ls
 # Create : 10/26,2013
-# Revised: 11/19,2013
+# Revised: 11/23,2013
 
 import urllib2
 import re, random
@@ -163,9 +163,6 @@ def ParseBibTex(strr):
             
 
     
-    
-
-    
 class GoogleScholar:
     def __init__(self):
         self.index = 0
@@ -208,15 +205,118 @@ class GoogleScholar:
 ##        except:
 ##            print 'error'
                 
-                
-                
+                          
+def ReadNewLine(fileArent):
+    line = fileArent.readline()
+    bLine = True
+    if not line:
+        bLine = False
+    return bLine, line, fileArent
+
+class Seeks():
+    def SeekTitle(self, line):
+        pattern = re.compile(r'\#\*')
+        match = pattern.match(line)
+        return 'title', match
+    def SeekAuthors(self, line):
+        pattern = re.compile(r'\#\@')
+        match = pattern.match(line)
+        return 'authors',match
+    def SeekYear(self, line):
+        pattern = re.compile(r'\#year')
+        match = pattern.match(line)
+        return 'year', match
+    def SeekConf(self, line):
+        pattern = re.compile(r'\#conf')
+        match = pattern.match(line)
+        return 'conf', match
+    def SeekCitation(self, line):
+        pattern = re.compile(r'\#citation')
+        match = pattern.match(line)
+        return 'citation', match
+    def SeekIndex(self, line):
+        pattern = re.compile(r'\#index')
+        match = pattern.match(line)
+        return 'index', match
+    def SeekArnetID(self, line):
+        pattern = re.compile(r'\#arnetid')
+        match = pattern.match(line)
+        return 'arnetid', match
+    def SeekRefs(self, line):
+        pattern = re.compile(r'\#\%')
+        match = pattern.match(line)
+        return 'ref', match
+    def SeekAbstract(self, line):
+        pattern = re.compile(r'\#\!')
+        match = pattern.match(line)
+        return 'abstract', match
+
+# only need the title, year, arentid  
+def SeekBibType(line):
+    funType = ['SeekTitle','SeekAuthors', 'SeekYear', 'SeekConf',\
+               'SeekCitation', 'SeekIndex', 'SeekArnetID', 'SeekRefs', 'SeekAbstract']# should be full (Careful!!!)
+
+    if line.isspace():
+        bibType = []
+        match = False
+    else:
+        for n in range(9):
+            bibType, match = getattr(Seeks(), funType[n])(line)
+            if match:
+                break
+
+    return bibType, match
 
 
-title = 'A Coarse-to-fine approach for fast deformable object detection'
-api = GoogleScholar()
-entry = api.searchTitle(title)
-print entry
+##title = 'A Coarse-to-fine approach for fast deformable object detection'
+##api = GoogleScholar()
+##entry = api.searchTitle(title)
+##print entry
+
+# Read the Arnet
+bNewEntry = False
+fileArent = open('F:/www/ArnetData/test.txt')
+bLine = True
+
+while bLine:
+    bLine, line, fileArent = ReadNewLine(fileArent) #bLine = 0, if the reach the end of file
+    if not bLine:
+        break
+
+    bibType, mType = SeekBibType(line)
+    if mType and bibType == 'title':
+        # get a new entry
+        arnetEntry = {}
+        arnetEntry['title'] = line[mType.end():-1]
+
+        while bLine:
+            bLine, line, fileArent = ReadNewLine(fileArent)
+            bibType, mType = SeekBibType(line)
+            if not(bLine and mType): # break if meet the blank(Careful!!!),
+                break
+            
+            arnetEntry[bibType] = line[mType.end():-1]
+
+
+
+        #
+        print 1
+        api = GoogleScholar()
+        entry = api.searchTitle(arnetEntry['title'])
+        print entry
+
+        
+
+        
+
+        
+
+        
+
+        
     
+    
+
 
 
 
