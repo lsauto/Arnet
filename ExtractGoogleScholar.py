@@ -5,6 +5,7 @@
 
 import urllib2
 import re, random
+import time
 from bs4 import BeautifulSoup
 
 
@@ -27,11 +28,85 @@ class ParseBibType():
             return 1
         else:
             return 0
-    def TypeInproceedings(self, strr):
-        if re.search('\@inproceedings', strr):
+
+    def TypeBook(self, strr):
+        if re.search('\@book', strr):
             return 2
         else:
             return 0
+        
+    def TypeBooklet(self, strr):
+        if re.search('\@booklet', strr):
+            return 3
+        else:
+            return 0
+
+    def TypeConference(self, strr):
+        if re.search('\@conference', strr):
+            return 4
+        else:
+            return 0
+
+    def TypeInbook(self, strr):
+        if re.search('\@inbook', strr):
+            return 5
+        else:
+            return 0
+
+    def TypeIncollection(self, strr):
+        if re.search('\@incollection', strr):
+            return 6
+        else:
+            return 0
+
+    def TypeInproceedings(self, strr):
+        if re.search('\@inproceedings', strr):
+            return 7
+        else:
+            return 0
+
+    def TypeManual(self, strr):
+        if re.search('\@manual', strr):
+            return 8
+        else:
+            return 0
+
+    def TypeMastersthesis(self, strr):
+        if re.search('\@mastersthesis', strr):
+            return 9
+        else:
+            return 0
+
+    def TypeMisc(self, strr):
+        if re.search('\@misc', strr):
+            return 10
+        else:
+            return 0
+
+    def TypePhdthesis(self, strr):
+        if re.search('\@phdthesis', strr):
+            return 11
+        else:
+            return 0
+
+    def TypeProceedings(self, strr):
+        if re.search('\@proceedings', strr):
+            return 12
+        else:
+            return 0
+
+    def TypeTechreport(self, strr):
+        if re.search('\@techreport', strr):
+            return 13
+        else:
+            return 0
+
+    def TypeUnpublished(self, strr):
+        if re.search('\@unpublished', strr):
+            return 14
+        else:
+            return 0
+
 
         
 class ParseBibEntries():
@@ -142,8 +217,10 @@ class ParseBibEntries():
         
 def ParseBibTex(strr):
     entry = {}
-    paperType = ['TypeArticle', 'TypeInproceedings']
-    for n in range(2):
+    paperType = ['TypeArticle', 'TypeBook', 'TypeBooklet', 'TypeConference', 'TypeInbook', \
+                 'TypeIncollection', 'TypeInproceedings', 'TypeManual', 'TypeMastersthesis', 'TypeMisc', \
+                 'TypePhdthesis', 'TypeProceedings', 'TypeTechreport', 'TypeUnpublished']
+    for n in range(14):
         ty = getattr(ParseBibType(), paperType[n])(strr)
         if ty:
             entry['type'] = ty
@@ -253,14 +330,13 @@ class Seeks():
 
 # only need the title, year, arentid  
 def SeekBibType(line):
-    funType = ['SeekTitle','SeekAuthors', 'SeekYear', 'SeekConf',\
-               'SeekCitation', 'SeekIndex', 'SeekArnetID', 'SeekRefs', 'SeekAbstract']# should be full (Careful!!!)
+    funType = ['SeekTitle', 'SeekYear', 'SeekArnetID']#
 
     if line.isspace():
         bibType = []
         match = False
     else:
-        for n in range(9):
+        for n in range(3):
             bibType, match = getattr(Seeks(), funType[n])(line)
             if match:
                 break
@@ -291,19 +367,30 @@ while bLine:
 
         while bLine:
             bLine, line, fileArent = ReadNewLine(fileArent)
-            bibType, mType = SeekBibType(line)
-            if not(bLine and mType): # break if meet the blank(Careful!!!),
+            # Judge the null string
+##            print line
+##            print bLine
+            if not (bLine and line.strip()):
                 break
+            bibType, mType = SeekBibType(line)
+            if not mType: # break if meet the blank(Careful!!!),
+                continue 
             
             arnetEntry[bibType] = line[mType.end():-1]
 
 
 
         #
-        print 1
-        api = GoogleScholar()
-        entry = api.searchTitle(arnetEntry['title'])
-        print entry
+        startTime = time.clock()
+        print arnetEntry
+##        print 1
+##        api = GoogleScholar()
+##        entry = api.searchTitle(arnetEntry['title'])
+##        print entry
+
+        endTime = time.clock()
+        print "The time of ececute is %f" % (endTime-startTime)
+        
 
         
 
