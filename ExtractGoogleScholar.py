@@ -1,7 +1,7 @@
 # Crawl The contents of Google Scholar
 # Author : ls
 # Create : 10/26,2013
-# Revised: 11/23,2013
+# Revised: 11/24,2013
 
 import urllib2
 import re, random
@@ -352,12 +352,34 @@ def SeekBibType(line):
 # Read the Arnet
 bNewEntry = False
 fileArent = open('F:/www/ArnetData/test.txt')
-bLine = True
 
+# Write the bibEntry of google
+fileOutput = open('googleBibEntry.txt', 'a')
+
+startTime = time.clock()
+bLine = True
+nLine = 0
+skipLine = 0
+numFail = 0
+numSucess = 0
+numRead = 0
 while bLine:
     bLine, line, fileArent = ReadNewLine(fileArent) #bLine = 0, if the reach the end of file
     if not bLine:
         break
+
+    #---- Skip lines ----
+    nLine = nLine +1;
+    if nLine < skipLine:
+        continue
+
+##    if numRead > 2:
+##        break
+    #--- Reach the 10 times error ---
+    if numFail > 10:
+        print 'The next skipLine should be %d' % n
+        break
+    # -----------------------------------
 
     bibType, mType = SeekBibType(line)
     if mType and bibType == 'title':
@@ -368,8 +390,6 @@ while bLine:
         while bLine:
             bLine, line, fileArent = ReadNewLine(fileArent)
             # Judge the null string
-##            print line
-##            print bLine
             if not (bLine and line.strip()):
                 break
             bibType, mType = SeekBibType(line)
@@ -378,21 +398,64 @@ while bLine:
             
             arnetEntry[bibType] = line[mType.end():-1]
 
+        numRead = numRead + 1
 
 
-        #
-        startTime = time.clock()
+##        entry = arnetEntry
+        if re.search('\.\Z', arnetEntry['title']):
+            arnetEntry['title'] = arnetEntry['title'][:-1]
+        api = GoogleScholar()
+        entry = api.searchTitle(arnetEntry['title'])
         print arnetEntry
-##        print 1
-##        api = GoogleScholar()
-##        entry = api.searchTitle(arnetEntry['title'])
-##        print entry
-
-        endTime = time.clock()
-        print "The time of ececute is %f" % (endTime-startTime)
+        print entry
+        # if isempty, and judge the field exist so conintue
+        if not entry or not entry.has_key('year') or not entry.has_key('title') \
+           or not arnetEntry.has_key('title') or not arnetEntry.has_key('year') \
+           or not arnetEntry.has_key('arnetid'):
+            numFail = numFail +1
+            print 'there is some error in the entry or the arnetEntry'
+            continue     
+        numFail = 0
         
 
         
+        # judge the entry equal the arnetEntry
+        if not entry['year'] == arnetEntry['year']:
+            print 'the year is not equal'
+            continue
+        if not entry['title'].upper() == arnetEntry['title'].upper():
+            print 'the title is not equal'
+            continue
+        
+        numSucess = numSucess + 1
+
+        entry['arnetid'] = arnetEntry['arnetid']
+        # Write the dict to the txt
+        # The arnetid Should in the first line 
+        fileOutput.write('arnetid')
+        fileOutput.write(':')
+        fileOutput.write(str(entry['arnetid']))
+        fileOutput.write('\n')
+        for key in entry:
+            if key == 'arnetid':
+                continue
+            fileOutput.write(key)
+            fileOutput.write(':')
+            fileOutput.write(str(entry[key]))
+            fileOutput.write('\n') 
+        fileOutput.write('\n')
+
+        
+        
+
+        
+fileArent.close()    
+fileOutput.close()
+endTime = time.clock()
+print "The time of ececute is %f" % (endTime-startTime)
+print 'The start line: %d, the end line: %d' % (skipLine, nLine)
+print 'The number of arent paper is %d' % numRead
+print 'The number of sucess is %d' % numSucess
 
         
 
