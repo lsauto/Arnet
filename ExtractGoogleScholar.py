@@ -383,7 +383,8 @@ while bLine:
         break
 
     #---- Skip lines ----
-    nLine = nLine +1;
+    print 'the nline is %d' % nLine
+    nLine = nLine +1
     if nLine < skipLine:
         continue
 
@@ -403,6 +404,7 @@ while bLine:
 
         while bLine:
             bLine, line, fileArent = ReadNewLine(fileArent)
+            nLine = nLine +1 # read a new line 
             # Judge the null string
             if not (bLine and line.strip()):
                 break
