@@ -256,7 +256,7 @@ class GoogleScholar:
         time.sleep(sleeptime)
     
     def searchTitle(self, queryTitle):
-##        self.randomSleep()
+        self.randomSleep()
         
         self.index = random.randint(0, 9)
 ##        try:
@@ -365,7 +365,7 @@ def SeekBibType(line):
 
 # Read the Arnet
 bNewEntry = False
-fileArent = open('F:/www/ArnetData/test.txt')
+fileArent = open('F:/www/ArnetData/DBLP-citation-Feb21.txt')
 
 # Write the bibEntry of google
 fileOutput = open('googleBibEntry.txt', 'a')
@@ -387,8 +387,8 @@ while bLine:
     if nLine < skipLine:
         continue
 
-    if numRead > 1:
-        break
+##    if numRead > 1:
+##        break
     #--- Reach the 10 times error ---
     if numFail > 10:
         print 'The next skipLine should be %d' % n
@@ -468,7 +468,7 @@ fileOutput.close()
 endTime = time.clock()
 print "The time of ececute is %f" % (endTime-startTime)
 print 'The start line: %d, the end line: %d' % (skipLine, nLine)
-print 'The number of arent paper is %d' % numRead
+print 'The number of arnet paper is %d' % numRead
 print 'The number of sucess is %d' % numSucess
 
         
