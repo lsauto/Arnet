@@ -250,8 +250,13 @@ class GoogleScholar:
         request.add_header('User-agent', user_agent)
         response = urllib2.urlopen(request)
         return response.read()
+
+    def randomSleep(self):
+        sleeptime = random.randint(30, 90)
+        time.sleep(sleeptime)
     
     def searchTitle(self, queryTitle):
+##        self.randomSleep()
         
         self.index = random.randint(0, 9)
 ##        try:
@@ -260,6 +265,11 @@ class GoogleScholar:
         url = 'http://scholar.google.com.hk/scholar?hl=zh-CN&q=%s' % queryTitle
         queryRes = self.getHtml(url)
         soup = BeautifulSoup(queryRes)
+        topFirst = soup.find('div', attrs = {'style':re.compile(u'z-index:')})
+        soup = BeautifulSoup(str(topFirst))
+        
+        pdfA = soup.find('a', attrs = {'href':re.compile(u'.pdf\Z')}) # find the the url of pdf
+        
         paperOnClick = soup.findAll('a', attrs = {'class':'gs_nph', 'href':'#'}, limit = 1)
         mClick = re.search(r'event,\'.+\',', str(paperOnClick[0]))
         if mClick:
@@ -276,7 +286,11 @@ class GoogleScholar:
 
 ##            print bibRes
 
-            return ParseBibTex(bibRes)
+            entry = ParseBibTex(bibRes)
+            if pdfA:
+                entry['pdfurl'] = pdfA['href']
+
+            return entry
                 
 
 ##        except:
@@ -373,8 +387,8 @@ while bLine:
     if nLine < skipLine:
         continue
 
-##    if numRead > 2:
-##        break
+    if numRead > 1:
+        break
     #--- Reach the 10 times error ---
     if numFail > 10:
         print 'The next skipLine should be %d' % n
@@ -403,7 +417,7 @@ while bLine:
 
 ##        entry = arnetEntry
         if re.search('\.\Z', arnetEntry['title']):
-            arnetEntry['title'] = arnetEntry['title'][:-1]
+            arnetEntry['title'] = arnetEntry['title'][:-1] # delete the end of .
         api = GoogleScholar()
         entry = api.searchTitle(arnetEntry['title'])
         print arnetEntry
