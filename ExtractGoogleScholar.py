@@ -252,49 +252,51 @@ class GoogleScholar:
         return response.read()
 
     def randomSleep(self):
-        sleeptime = random.randint(30, 90)
+        sleeptime = random.randint(60, 120)
         time.sleep(sleeptime)
     
     def searchTitle(self, queryTitle):
         self.randomSleep()
         
         self.index = random.randint(0, 9)
-##        try:
-        # the first layer
-        queryTitle = urllib2.quote(queryTitle.replace(' ', '+'))
-        url = 'http://scholar.google.com.hk/scholar?hl=zh-CN&q=%s' % queryTitle
-        queryRes = self.getHtml(url)
-        soup = BeautifulSoup(queryRes)
-        topFirst = soup.find('div', attrs = {'style':re.compile(u'z-index:')})
-        soup = BeautifulSoup(str(topFirst))
-        
-        pdfA = soup.find('a', attrs = {'href':re.compile(u'.pdf\Z')}) # find the the url of pdf
-        
-        paperOnClick = soup.findAll('a', attrs = {'class':'gs_nph', 'href':'#'}, limit = 1)
-        mClick = re.search(r'event,\'.+\',', str(paperOnClick[0]))
-        if mClick:
-            # the second layer
-            clickProperty = mClick.group()[7:-2]
-            refUrl = 'http://scholar.google.com.hk/scholar?q=info:%s:scholar.google.com/&output=cite&hl=zh-CN' % clickProperty
-            refRes = self.getHtml(refUrl)
-            soup = BeautifulSoup(refRes)
-            bibTex = soup.find('a', text = re.compile(u'BibTeX'))
+        try:
+            # the first layer
+            queryTitle = urllib2.quote(queryTitle.replace(' ', '+'))
+            url = 'http://scholar.google.com.hk/scholar?hl=zh-CN&q=%s' % queryTitle
+            queryRes = self.getHtml(url)
+            soup = BeautifulSoup(queryRes)
+            topFirst = soup.find('div', attrs = {'style':re.compile(u'z-index:')})
+            soup = BeautifulSoup(str(topFirst))
+            
+            pdfA = soup.find('a', attrs = {'href':re.compile(u'.pdf\Z')}) # find the the url of pdf
 
-            # the third layer
-            bibUrl = 'http://scholar.google.com.hk'+bibTex['href']
-            bibRes = self.getHtml(bibUrl)
+            paperOnClick = soup.findAll('a', attrs = {'class':'gs_nph', 'href':'#'}, limit = 1)
+            mClick = re.search(r'event,\'.+\',', str(paperOnClick[0]))
+            if mClick:
+                # the second layer
+                clickProperty = mClick.group()[7:-2]
+                refUrl = 'http://scholar.google.com.hk/scholar?q=info:%s:scholar.google.com/&output=cite&hl=zh-CN' % clickProperty
+                refRes = self.getHtml(refUrl)
+                soup = BeautifulSoup(refRes)
+                bibTex = soup.find('a', text = re.compile(u'BibTeX'))
 
-##            print bibRes
+                # the third layer
+                bibUrl = 'http://scholar.google.com.hk'+bibTex['href']
+                bibRes = self.getHtml(bibUrl)
 
-            entry = ParseBibTex(bibRes)
-            if pdfA:
-                entry['pdfurl'] = pdfA['href']
+        ##            print bibRes
 
-            return entry
+                entry = ParseBibTex(bibRes)
+                if pdfA:
+                    entry['pdfurl'] = pdfA['href']
+
+                return entry
                 
 
-##        except:
-##            print 'error'
+        except:
+            print 'there is a error in search'
+            entry = {}
+            return entry
                 
                           
 def ReadNewLine(fileArent):
@@ -373,7 +375,7 @@ fileOutput = open('googleBibEntry.txt', 'a')
 startTime = time.clock()
 bLine = True
 nLine = 0
-skipLine = 0
+skipLine = 315
 numFail = 0
 numSucess = 0
 numRead = 0
@@ -418,10 +420,12 @@ while bLine:
 
 
 ##        entry = arnetEntry
-        if re.search('\.\Z', arnetEntry['title']):
-            arnetEntry['title'] = arnetEntry['title'][:-1] # delete the end of .
         api = GoogleScholar()
         entry = api.searchTitle(arnetEntry['title'])
+        if re.search('\.\Z', arnetEntry['title']):
+            arnetEntry['title'] = arnetEntry['title'][:-1] # delete the end of .
+        if re.search('\.\Z', entry['title']):
+            entry['title'] = entry['title'][:-1] # delete the end of .
         print arnetEntry
         print entry
         # if isempty, and judge the field exist so conintue
