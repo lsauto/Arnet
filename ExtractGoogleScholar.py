@@ -390,7 +390,7 @@ while bLine:
     if nLine < skipLine:
         continue
 
-##    if numRead > 1:
+##    if numRead > 2:
 ##        break
     #--- Reach the 10 times error ---
     if numFail > 10:
@@ -418,14 +418,9 @@ while bLine:
 
         numRead = numRead + 1
 
-
 ##        entry = arnetEntry
         api = GoogleScholar()
         entry = api.searchTitle(arnetEntry['title'])
-        if re.search('\.\Z', arnetEntry['title']):
-            arnetEntry['title'] = arnetEntry['title'][:-1] # delete the end of .
-        if re.search('\.\Z', entry['title']):
-            entry['title'] = entry['title'][:-1] # delete the end of .
         print arnetEntry
         print entry
         # if isempty, and judge the field exist so conintue
@@ -438,6 +433,10 @@ while bLine:
         numFail = 0
         
 
+        if re.search('\.\Z', arnetEntry['title']):
+            arnetEntry['title'] = arnetEntry['title'][:-1] # delete the end of .
+        if re.search('\.\Z', entry['title']):
+            entry['title'] = entry['title'][:-1] # delete the end of .
         
         # judge the entry equal the arnetEntry
         if not entry['year'] == arnetEntry['year']:
