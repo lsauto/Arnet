@@ -252,7 +252,7 @@ class GoogleScholar:
         return response.read()
 
     def randomSleep(self):
-        sleeptime = random.randint(60, 120)
+        sleeptime = random.randint(40, 100)
         time.sleep(sleeptime)
     
     def searchTitle(self, queryTitle):
@@ -265,7 +265,8 @@ class GoogleScholar:
             url = 'http://scholar.google.com.hk/scholar?hl=zh-CN&q=%s' % queryTitle
             queryRes = self.getHtml(url)
             soup = BeautifulSoup(queryRes)
-            topFirst = soup.find('div', attrs = {'style':re.compile(u'z-index:')})
+    ##        topFirst = soup.find('div', attrs = {'style':re.compile(u'z-index:')})
+            topFirst = soup.find('div', attrs = {'class':'gs_r'})
             soup = BeautifulSoup(str(topFirst))
             
             pdfA = soup.find('a', attrs = {'href':re.compile(u'.pdf\Z')}) # find the the url of pdf
@@ -293,7 +294,8 @@ class GoogleScholar:
                 return entry
                 
 
-        except:
+        except Exception, e:
+            print e
             print 'there is a error in search'
             entry = {}
             return entry
@@ -375,7 +377,7 @@ fileOutput = open('googleBibEntry.txt', 'a')
 startTime = time.clock()
 bLine = True
 nLine = 0
-skipLine = 315
+skipLine = 1613
 numFail = 0
 numSucess = 0
 numRead = 0
@@ -383,18 +385,21 @@ while bLine:
     bLine, line, fileArent = ReadNewLine(fileArent) #bLine = 0, if the reach the end of file
     if not bLine:
         break
-
-    #---- Skip lines ----
-    print 'the nline is %d' % nLine
+    
     nLine = nLine +1
     if nLine < skipLine:
         continue
 
-##    if numRead > 2:
+    #---- Skip lines ----
+    print 'the nline is %d' % nLine
+    print 'The number of arnet paper is %d' % numRead
+    print 'The number of sucess is %d' % numSucess
+
+##    if numRead > 1:
 ##        break
     #--- Reach the 10 times error ---
     if numFail > 10:
-        print 'The next skipLine should be %d' % n
+        print 'The next skipLine should be %d' % nLine
         break
     # -----------------------------------
 
