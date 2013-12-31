@@ -52,7 +52,9 @@ class Arnet:
         while(self.nLine < nLine and self.bLine):
             self.bLine, line = self.ReadNewLine()
             self.nLine = self.nLine + 1
-            
+
+    def __del__(self):
+        self.fileArent.close()     
         
 
     def ReadNewLine(self):
