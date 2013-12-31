@@ -1,13 +1,14 @@
 # Crawl The contents of Google Scholar
 # Author : ls
 # Create : 10/26,2013
-# Revised: 12/22,2013
+# Revised: 12/30,2013
 
 
-import re, random
+##import re, random
 import time
 import LoadIpTxt
 from GoogleScholarParse import GoogleScholar
+from ArnetFileParse import Arnet
 
 
 
@@ -81,10 +82,18 @@ def SeekBibType(line):
     return bibType, match
 
 
-title = 'A Coarse-to-fine approach for fast deformable object detection'
-api = GoogleScholar()
-entry = api.searchTitle(title)
-print entry
+##title = 'A Coarse-to-fine approach for fast deformable object detection'
+##api = GoogleScholar()
+##entry = api.searchTitle(title)
+##print entry
+
+arnet = Arnet('F:/www/ArnetData/test.txt', 14)
+bibEntry = 1
+while(bibEntry):
+    bibEntry, nline = arnet.ReadNewBib()
+    print bibEntry
+    print nline
+    print '----'
 
 ### Read the Arnet
 ##bNewEntry = False
