@@ -254,15 +254,17 @@ class GoogleScholar:
         sleeptime = random.randint(60, 120)
         time.sleep(sleeptime)
 
-    def addAgency(self):
-        proxy = urllib2.ProxyHandler({'http':'http://61.144.14.99:80'})   
+    def addAgency(self, prx):
+        proxy = urllib2.ProxyHandler({'http':('http://'+prx)})   
         opener = urllib2.build_opener(proxy,urllib2.HTTPHandler)
         urllib2.install_opener(opener)  
     
-    def searchTitle(self, queryTitle):
-##        self.randomSleep()
-##        self.addAgency()
-        
+    def searchTitle(self, queryTitle, bSleep = False, proxy = ''):
+        if bSleep:
+            self.randomSleep()
+        if proxy:
+            self.addAgency(proxy)
+            
         self.index = random.randint(0, 9)
         try:
             # the first layer
@@ -291,7 +293,6 @@ class GoogleScholar:
                 # the third layer
                 bibUrl = 'http://scholar.google.com.hk'+bibTex['href']
                 bibRes = self.getHtml(bibUrl)
-
         ##            print bibRes
 
                 entry = ParseBibTex(bibRes)
