@@ -247,7 +247,7 @@ class GoogleScholar:
         request = urllib2.Request(url)
         user_agent = user_agents[self.index]
         request.add_header('User-agent', user_agent)
-        response = urllib2.urlopen(request)
+        response = urllib2.urlopen(request, timeout = 40)
         return response.read()
 
     def randomSleep(self):
