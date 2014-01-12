@@ -1,8 +1,8 @@
 # Crawl The contents of Google Scholar
 # Author : ls
 # Create : 10/26,2013
-# Revised: 12/30,2013
-import random
+# Revised: 01/12,2013
+import random,re
 import time
 import LoadIpTxt
 from GoogleScholarParse import GoogleScholar
@@ -15,14 +15,14 @@ from ArnetFileParse import Arnet
 ##entry = api.searchTitle(title, False, '61.144.48.169:3128')
 ##print entry
 
-skipLine = 6073
+skipLine = 6442
 arnet = Arnet('F:/www/ArnetData/DBLP-citation-Feb21.txt', skipLine)
 api = GoogleScholar()
 # Write the bibEntry of google
 fileOutput = open('googleBibEntry.txt', 'a')
 
-ip, numIp = LoadIpTxt.PraseTxtIP('0101Proxy.txt')
-validMax = 3
+ip, numIp = LoadIpTxt.PraseTxtIP('0107Proxy.txt')
+validMax = 1
 ipValid = [validMax for i in range(numIp)]
 ipRange = [i for i in range(0, numIp)]
 
@@ -40,11 +40,12 @@ while(arnetEntry):
 
     ##    #--- Reach the 5 times error ---
     if numFail > 5:
-        print 'The next skipLine should be %d' % nLine
+        print 'The next skipLine should be %d' % nline
         break
     # -----------------------------------
     
     arnetEntry, nline = arnet.ReadNewBib()
+    numRead = numRead + 1
 
     # Search a new paper
     random.shuffle(ipRange)
@@ -107,7 +108,7 @@ while(arnetEntry):
 fileOutput.close()
 endTime = time.clock()
 print "The time of ececute is %f" % (endTime-startTime)
-print 'The start line: %d, the end line: %d' % (skipLine, nLine)
+print 'The start line: %d, the end line: %d' % (skipLine, nline)
 print 'The number of arnet paper is %d' % numRead
 print 'The number of sucess is %d' % numSucess
 
